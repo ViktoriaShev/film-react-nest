@@ -23,16 +23,17 @@ export class Schedule {
   @Prop({ required: true })
   price: number;
 
-  @Prop({ type: [Number], default: [] })
-  taken: number[];
+  // Массив строк "row-seat" для отслеживания занятых мест
+  @Prop({ type: [String], default: [] })
+  taken: string[]; // Массив строк в формате "row-seat" (например "2-5" для ряда 2, места 5)
 }
 
 export const ScheduleSchema = SchemaFactory.createForClass(Schedule);
 
-export type FilmDetailsDocument = FilmDetails & Document;
+export type FilmsDocument = Films & Document;
 
 @Schema()
-export class FilmDetails {
+export class Films {
   @Prop({ required: true })
   id: string;
 
@@ -64,4 +65,4 @@ export class FilmDetails {
   schedule: Schedule[];
 }
 
-export const FilmDetailsSchema = SchemaFactory.createForClass(FilmDetails);
+export const FilmsSchema = SchemaFactory.createForClass(Films);

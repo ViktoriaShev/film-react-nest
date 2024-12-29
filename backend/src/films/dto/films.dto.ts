@@ -5,10 +5,10 @@ export class ScheduleDto {
   rows: number;
   seats: number;
   price: number;
-  taken: number[];
+  taken: string[];
 }
 
-export class FilmDetailsDto {
+export class FilmDto {
   id: string;
   title: string;
   rating: number;

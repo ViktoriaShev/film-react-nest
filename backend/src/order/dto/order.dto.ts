@@ -1,23 +1,23 @@
 export class TicketDto {
-  film: string; // UUID фильма
-  session: string; // UUID сеанса
-  daytime: string; // Дата и время сеанса
-  row: number; // Номер ряда
-  seat: number; // Номер места
-  price: number; // Цена билета
+  film: string;
+  session: string;
+  daytime: string;
+  row: number;
+  seat: number;
+  price: number;
 }
 
 export class OrderRequestDto {
-  email: string; // Электронная почта клиента
-  phone: string; // Телефон клиента
-  tickets: TicketDto[]; // Список билетов в заказе
+  email: string;
+  phone: string;
+  tickets: TicketDto[];
 }
 
 export class OrderItemDto extends TicketDto {
-  id: string; // UUID билета в заказе
+  id: string;
 }
 
 export class OrderResponseDto {
-  total: number; // Общее количество билетов
-  items: OrderItemDto[]; // Список билетов в заказе
+  total: number;
+  items: OrderItemDto[];
 }

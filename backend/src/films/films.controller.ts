@@ -1,7 +1,7 @@
 import { Controller, Get, Param } from '@nestjs/common';
 
 import { FilmsService } from './films.service';
-import { FilmDetailsDto, WithTotal, ScheduleDto } from './dto/films.dto';
+import { FilmDto, WithTotal, ScheduleDto } from './dto/films.dto';
 
 @Controller('films')
 export class FilmsController {
@@ -10,7 +10,7 @@ export class FilmsController {
   @Get()
   getAllFilms(): Promise<{
     total: number;
-    items: Omit<FilmDetailsDto, 'schedule'>[];
+    items: Omit<FilmDto, 'schedule'>[];
   }> {
     return this.filmsService.getAllFilms();
   }

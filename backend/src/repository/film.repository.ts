@@ -2,18 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { FilmDetails } from '../films/schemes/films.schema';
-import { FilmDetailsDto, ScheduleDto, WithTotal } from '../films/dto/films.dto';
+import { Films } from '../films/schemes/films.schema';
+import { FilmDto, ScheduleDto, WithTotal } from '../films/dto/films.dto';
 
 @Injectable()
 export class FilmsRepository {
-  constructor(
-    @InjectModel(FilmDetails.name) private filmModel: Model<FilmDetails>,
-  ) {}
+  constructor(@InjectModel(Films.name) private filmModel: Model<Films>) {}
 
   async findAll(): Promise<{
     total: number;
-    items: Omit<FilmDetailsDto, 'schedule'>[];
+    items: Omit<FilmDto, 'schedule'>[];
   }> {
     const films = await this.filmModel.find({}).exec();
     const total = films.length;
@@ -37,8 +35,7 @@ export class FilmsRepository {
       return null;
     }
 
-    // Предполагаем, что расписание хранится в виде массива объектов внутри модели фильма
-    const schedule = film.schedule || []; // Замените film.schedule на фактическое поле с расписанием
+    const schedule = film.schedule || [];
 
     return {
       total: schedule.length,
@@ -52,5 +49,34 @@ export class FilmsRepository {
         taken: session.taken,
       })),
     };
+  }
+
+  async updateTakenSeats(
+    filmId: string,
+    scheduleId: string,
+    newTakenSeats: string[],
+  ): Promise<void> {
+    const film = await this.filmModel.findById(filmId).exec();
+    if (!film) {
+      throw new Error('Film not found');
+    }
+
+    const schedule = film.schedule.find((session) => session.id === scheduleId);
+    if (!schedule) {
+      throw new Error('Schedule not found');
+    }
+
+    const existingTakenSeats = schedule.taken || [];
+
+    const updatedTakenSeats = [
+      ...new Set([...existingTakenSeats, ...newTakenSeats]),
+    ];
+
+    await this.filmModel
+      .updateOne(
+        { _id: filmId, 'schedule.id': scheduleId },
+        { $set: { 'schedule.$.taken': updatedTakenSeats } },
+      )
+      .exec();
   }
 }
