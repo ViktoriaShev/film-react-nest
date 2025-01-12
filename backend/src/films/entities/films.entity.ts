@@ -31,6 +31,6 @@ export class Films {
   @Column('varchar', { length: 1000, nullable: false })
   description: string;
 
-  @OneToMany(() => Schedules, (schedules) => schedules.film, { cascade: true })
+  @OneToMany(() => Schedules, (schedules) => schedules.films, { cascade: true })
   schedule: Schedules[];
 }
