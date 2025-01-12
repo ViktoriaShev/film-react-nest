@@ -43,7 +43,7 @@ export class Films {
   @Prop({ required: true })
   rating: number;
 
-  @Prop({ required: true })
+  @Prop({ required: true, nullable: false })
   director: string;
 
   @Prop({ type: [String], required: true })

@@ -5,7 +5,7 @@ export class ScheduleDto {
   rows: number;
   seats: number;
   price: number;
-  taken: string[];
+  taken: string;
 }
 
 export class FilmDto {
@@ -13,7 +13,7 @@ export class FilmDto {
   title: string;
   rating: number;
   director: string;
-  tags: string[];
+  tags: string;
   image: string;
   cover: string;
   about: string;
