@@ -8,15 +8,15 @@ export class FilmsController {
   constructor(private readonly filmsService: FilmsService) {}
 
   @Get()
-  async getAllFilms(): Promise<{
+  getAllFilms(): Promise<{
     total: number;
     items: Omit<FilmDto, 'schedule'>[];
   }> {
-    return await this.filmsService.getAllFilms();
+    return this.filmsService.getAllFilms();
   }
 
   @Get(':id/schedule')
-  async getFilmById(@Param('id') id: string): Promise<WithTotal<ScheduleDto>> {
-    return await this.filmsService.getFilmById(id);
+  getFilmById(@Param('id') id: string): Promise<WithTotal<ScheduleDto>> {
+    return this.filmsService.getFilmById(id);
   }
 }
