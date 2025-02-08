@@ -1,22 +1,37 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
-import { Films } from '../films/schemes/films.schema';
-import { FilmDto, ScheduleDto, WithTotal } from '../films/dto/films.dto';
+import { Films } from '../films/entities/films.entity';
+import { Schedules } from '../films/entities/schedules.entity';
+import { FilmDto, WithTotal, ScheduleDto } from '../films/dto/films.dto';
 
 @Injectable()
 export class FilmsRepository {
-  constructor(@InjectModel(Films.name) private filmModel: Model<Films>) {}
+  constructor(
+    @InjectRepository(Films)
+    private readonly filmRepository: Repository<Films>,
+  ) {}
 
-  async findAll(): Promise<{
+  async getAllFilms(): Promise<{
     total: number;
     items: Omit<FilmDto, 'schedule'>[];
   }> {
-    const films = await this.filmModel.find({}).exec();
-    const total = films.length;
+    const [films, total] = await this.filmRepository.findAndCount({
+      select: [
+        'id',
+        'rating',
+        'director',
+        'tags',
+        'title',
+        'about',
+        'description',
+        'image',
+        'cover',
+      ],
+    });
     const items = films.map((film) => ({
-      id: film._id.toString(),
+      id: film.id,
       rating: film.rating,
       director: film.director,
       tags: film.tags,
@@ -26,13 +41,18 @@ export class FilmsRepository {
       image: film.image,
       cover: film.cover,
     }));
+
     return { total, items };
   }
 
   async findById(id: string): Promise<WithTotal<ScheduleDto>> {
-    const film = await this.filmModel.findById(id).exec();
+    const film = await this.filmRepository.findOne({
+      where: { id },
+      relations: ['schedule'],
+    });
+
     if (!film) {
-      return null;
+      throw new NotFoundException('Film not found');
     }
 
     const schedule = film.schedule || [];
@@ -40,7 +60,7 @@ export class FilmsRepository {
     return {
       total: schedule.length,
       items: schedule.map((session) => ({
-        id: session.id.toString(),
+        id: session.id,
         daytime: session.daytime,
         hall: session.hall,
         rows: session.rows,
@@ -54,29 +74,34 @@ export class FilmsRepository {
   async updateTakenSeats(
     filmId: string,
     scheduleId: string,
-    newTakenSeats: string[],
+    newTakenSeats: string,
   ): Promise<void> {
-    const film = await this.filmModel.findById(filmId).exec();
+    const film = await this.filmRepository.findOne({
+      where: { id: filmId },
+      relations: ['schedule'],
+    });
+
     if (!film) {
-      throw new Error('Film not found');
+      throw new NotFoundException('Film not found');
     }
 
     const schedule = film.schedule.find((session) => session.id === scheduleId);
+
     if (!schedule) {
-      throw new Error('Schedule not found');
+      throw new NotFoundException('Schedule not found');
     }
 
-    const existingTakenSeats = schedule.taken || [];
+    const existingTakenSeats = schedule.taken ? schedule.taken.split(',') : [];
 
     const updatedTakenSeats = [
-      ...new Set([...existingTakenSeats, ...newTakenSeats]),
+      ...new Set([...existingTakenSeats, ...newTakenSeats.split(',')]),
     ];
 
-    await this.filmModel
-      .updateOne(
-        { _id: filmId, 'schedule.id': scheduleId },
-        { $set: { 'schedule.$.taken': updatedTakenSeats } },
-      )
-      .exec();
+    await this.filmRepository
+      .createQueryBuilder()
+      .update(Schedules)
+      .set({ taken: updatedTakenSeats.join(',') })
+      .where('id = :scheduleId', { scheduleId })
+      .execute();
   }
 }

@@ -2,6 +2,7 @@ export class TicketDto {
   film: string;
   session: string;
   daytime: string;
+  day: string;
   row: number;
   seat: number;
   price: number;

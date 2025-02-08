@@ -7,21 +7,21 @@ import { FilmDto, WithTotal, ScheduleDto } from './dto/films.dto';
 export class FilmsService {
   constructor(private readonly filmsRepository: FilmsRepository) {}
 
-  getAllFilms(): Promise<{
+  async getAllFilms(): Promise<{
     total: number;
     items: Omit<FilmDto, 'schedule'>[];
   }> {
-    return this.filmsRepository.findAll();
+    return await this.filmsRepository.getAllFilms();
   }
 
-  getFilmById(id: string): Promise<WithTotal<ScheduleDto>> {
-    return this.filmsRepository.findById(id);
+  async getFilmById(id: string): Promise<WithTotal<ScheduleDto>> {
+    return await this.filmsRepository.findById(id);
   }
 
   async updateFilmSchedule(
     filmId: string,
     scheduleId: string,
-    takenSeats: string[],
+    takenSeats: string,
   ): Promise<void> {
     await this.filmsRepository.updateTakenSeats(filmId, scheduleId, takenSeats);
   }

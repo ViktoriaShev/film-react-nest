@@ -27,7 +27,6 @@ export class OrderService {
       }
 
       const seat = { row: ticket.row.toString(), seat: ticket.seat.toString() };
-
       allTakenSeats.push(seat);
 
       items.push({
@@ -51,7 +50,10 @@ export class OrderService {
       if (!schedule) {
         throw new BadRequestException('Session not found');
       }
-      if (schedule.taken.includes(seatKey)) {
+
+      const takenArray = schedule.taken ? schedule.taken.split(',') : [];
+
+      if (takenArray.includes(seatKey)) {
         throw new BadRequestException(`Seat ${seatKey} is already taken`);
       }
     }
@@ -65,7 +67,11 @@ export class OrderService {
 
       const seat = { row: ticket.row.toString(), seat: ticket.seat.toString() };
 
-      schedule.taken.push(`${seat.row}:${seat.seat}`);
+      const takenArray = schedule.taken ? schedule.taken.split(',') : [];
+
+      takenArray.push(`${seat.row}:${seat.seat}`);
+
+      schedule.taken = takenArray.join(',');
 
       await this.filmsService.updateFilmSchedule(
         ticket.film,
