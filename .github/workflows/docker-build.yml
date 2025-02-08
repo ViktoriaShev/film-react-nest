@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - rewiew-2
-  workflow_dispatch: # Возможность запустить вручную
+  workflow_dispatch:
 
 jobs:
   build-and-push:
