@@ -3,7 +3,7 @@ name: Build and Push Docker Images
 on:
   push:
     branches:
-      - rewiew-2
+      - review-2
   workflow_dispatch:
 
 jobs:
