@@ -6,7 +6,7 @@ services:
     volumes:
       - frontend:/app/dist # Файлы сохраняем в volume
     networks:
-      - internet
+      - frontend_network
     depends_on:
       - backend
     env_file:
@@ -19,7 +19,7 @@ services:
     env_file:
       - .env
     networks:
-      - internet
+      - backend_network
       - internet_internal
     ports:
       - "3000:3000"
@@ -56,7 +56,7 @@ services:
       - pgadmin:/var/lib/pgadmin
     networks:
       - internet_internal
-      - internet
+      - backend_network
     depends_on:
       - postgres
     restart: unless-stopped
@@ -70,7 +70,8 @@ services:
       - frontend:/var/www/frontend:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro # Монтирование сертификатов
     networks:
-      - internet
+      - frontend_network
+      - backend_network
     ports:
       - "80:80"
       - "443:443"
@@ -85,7 +86,9 @@ volumes:
   pgadmin:
 
 networks:
-  internet:
+  frontend_network:
+    driver: bridge
+  backend_network:
     driver: bridge
   internet_internal:
     driver: bridge

@@ -1,3 +1,5 @@
+Cсылка на проект: https://my-choice.nomorepartiesco.ru
+
 # FILM!
 
 Найти мой проект можно по такому доменному имени: my-choice.nomorepartiesco.ru
